@@ -1,0 +1,32 @@
+# ehrsh Docker Compose
+# Starts a local HAPI FHIR R4 server pre-loaded with Synthea patient data
+
+services:
+  # HAPI FHIR R4 Server with Synthea synthetic patient data
+  # ~629 synthetic patients with full medical histories
+  hapi-fhir:
+    image: smartonfhir/hapi-5:r4-synthea
+    platform: linux/amd64
+    container_name: ehrsh-fhir
+    ports:
+      - "8080:8080"
+    environment:
+      - HAPI_FHIR_ALLOWED_BUNDLE_TYPES=collection,document,message,transaction,transactionresponse,batch,batchresponse,history,searchset
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/hapi-fhir-jpaserver/fhir/metadata"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+    restart: unless-stopped
+
+# Usage:
+#   docker compose up -d           # Start the server
+#   docker compose logs -f         # View logs
+#   docker compose down            # Stop and remove
+#
+# After starting, configure ehrsh:
+#   echo "FHIR_BASE_URL=http://localhost:8080/hapi-fhir-jpaserver/fhir" > .env
+#
+# Or run ehrsh directly with the local server:
+#   FHIR_BASE_URL=http://localhost:8080/hapi-fhir-jpaserver/fhir node dist/index.js
