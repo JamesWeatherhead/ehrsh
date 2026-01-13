@@ -1,6 +1,8 @@
 # ehrsh
 
-**EHR as a Shell**: natural language CLI for FHIR workflows. Replace 47 clicks with one command.
+**EHR as a Shell** - a natural language CLI for Electronic Health Record (EHR) workflows using FHIR. Replace 47 clicks with one command.
+
+Talk to your EHR like you'd talk to a colleague. ehrsh translates plain English into FHIR API calls - the standard protocol that modern health systems use to exchange data.
 
 ## Quick Start
 
@@ -13,7 +15,7 @@ export ANTHROPIC_API_KEY=your-key-here
 node dist/index.js
 ```
 
-Get your API key at [console.anthropic.com](https://console.anthropic.com/) or use [Microsoft Foundry](https://learn.microsoft.com/en-us/azure/ai-foundry/).
+Get your API key at [console.anthropic.com](https://console.anthropic.com/).
 
 ## What Can It Do?
 
@@ -28,7 +30,7 @@ ehrsh> draft a note
 ehrsh> ask patient if I can move them to 3pm, if yes then reschedule
 ```
 
-With Claude API enabled, you can use natural phrasing:
+With Claude API, use natural phrasing:
 
 ```
 ehrsh> what pills does this guy take
@@ -36,7 +38,7 @@ ehrsh> any recent kidney function tests
 ehrsh> is their A1C under control
 ```
 
-See [examples/demo-session.md](examples/demo-session.md) for real output including natural language variations, lab charts, and full workflows.
+See [examples/demo-session.md](examples/demo-session.md) for real output.
 
 ## Why?
 
@@ -46,16 +48,40 @@ EHR software is stuck in 2005: endless clicking through tabs, forms, and confirm
 
 The terminal isn't primitive. It's the fastest interface we have.
 
+## Vision: Agentic Clinical Workflows
+
+ehrsh is a step toward fully agentic healthcare software - where AI handles multi-step clinical workflows end-to-end.
+
+**Today (v0.1.0):**
+```
+ehrsh> add albuterol to patient Smith
+```
+Single commands that map to single FHIR operations.
+
+**Tomorrow:**
+```
+ehrsh> refill all maintenance meds for my diabetic patients who are due
+```
+Agent queries patient panel -> filters by diagnosis -> checks last refill dates -> generates refill orders -> routes for e-signature.
+
+```
+ehrsh> prep me for my 2pm appointment
+```
+Agent pulls patient chart -> summarizes recent visits -> flags abnormal labs -> drafts HPI -> opens note template with context pre-filled.
+
+```
+ehrsh> this patient needs a colonoscopy - make it happen
+```
+Agent checks insurance eligibility -> finds in-network GI providers -> checks availability -> sends referral -> schedules appointment -> notifies patient.
+
+**The thesis:** The EHR of the future isn't a better GUI. It's no GUI. It's agents that understand clinical context and execute workflows autonomously, with humans approving key decisions.
+
 ## Local FHIR Server (Optional)
 
 Want your own sandbox? The public HAPI server works great, but you can run locally:
 
 ```bash
 docker compose up -d
-```
-
-Then set:
-```bash
 export FHIR_BASE_URL=http://localhost:8080/hapi-fhir-jpaserver/fhir
 ```
 
@@ -65,27 +91,11 @@ Uses [smartonfhir/hapi-5](https://hub.docker.com/r/smartonfhir/hapi-5) with Synt
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `ANTHROPIC_API_KEY` | - | Claude API key (direct Anthropic) |
-| `ANTHROPIC_FOUNDRY_BASE_URL` | - | Azure Foundry endpoint (alternative) |
-| `ANTHROPIC_FOUNDRY_API_KEY` | - | Azure Foundry API key |
-| `ANTHROPIC_MODEL` | `claude-sonnet-4-5` | Model: `claude-opus-4-5`, `claude-sonnet-4-5`, `claude-haiku-4-5` |
+| `ANTHROPIC_API_KEY` | (required) | Your Claude API key |
 | `FHIR_BASE_URL` | `https://hapi.fhir.org/baseR4` | FHIR server endpoint |
-| `FHIR_BEARER_TOKEN` | - | Auth token (if required) |
 | `MESSAGING_MODE` | `mock` | `mock` or `twilio` |
-| `TWILIO_ACCOUNT_SID` | - | For real SMS |
-| `TWILIO_AUTH_TOKEN` | - | For real SMS |
-| `TWILIO_PHONE_NUMBER` | - | For real SMS |
 
-Create a `.env` file or export variables directly.
-
-## Verify It Works
-
-After adding a medication, check the HAPI web UI:
-
-- **Public**: https://hapi.fhir.org/
-- **Local**: http://localhost:8080/hapi-fhir-jpaserver/
-
-Navigate to Resources > MedicationRequest > Search to see your changes.
+See `.env.example` for additional options (Azure Foundry, Twilio, auth tokens, model selection).
 
 ## Command Reference
 
@@ -109,17 +119,16 @@ Type `help` for full command list.
 
 ## Contributing
 
-PRs welcome. Some ideas:
+PRs welcome! Ideas:
 
-- [ ] Additional FHIR resources (CarePlan, Immunization, Procedure)
-- [ ] Better charting (beyond ASCII)
-- [ ] Voice input
-- [ ] More clinical note templates
-- [ ] SMART on FHIR authentication
-- [ ] Export to PDF/print
+- **More FHIR resources** - CarePlan, Immunization, Procedure, DiagnosticReport
+- **Smarter charting** - beyond ASCII (SVG, web view)
+- **Voice input** - "Hey ehrsh, what's my next patient?"
+- **SMART on FHIR auth** - connect to real EHRs
+- **Agentic workflows** - multi-step autonomous operations
 
 ```bash
-npm run dev    # Run in development mode
+npm run dev    # Development mode
 npm run build  # Compile TypeScript
 ```
 
@@ -131,5 +140,4 @@ MIT. Do whatever you want with it.
 
 - [Claude](https://anthropic.com/claude) - natural language understanding
 - [HAPI FHIR](https://hapifhir.io/) - the FHIR server
-- [smartonfhir/hapi-5](https://hub.docker.com/r/smartonfhir/hapi-5) - Docker images with Synthea data (Boston Children's Hospital)
 - [Synthea](https://synthetichealth.github.io/synthea/) - synthetic patient generator
